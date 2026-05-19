@@ -26,9 +26,9 @@ public class CarritoController {
         return s.buscarxID(id);
     }
 
-    @GetMapping("/buscarxnombre/{nombre}")
-    public List <Carrito> buscarxNombre(@PathVariable String nombre) {
-        return s.buscarxNombre(nombre);
+    @GetMapping("/buscarxrut/{rut}")
+    public Optional <Carrito> buscarxRut(@PathVariable String rut) {
+        return s.buscarxRut(rut);
     }
 
     @PostMapping("/crear")

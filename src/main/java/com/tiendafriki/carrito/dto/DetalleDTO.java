@@ -3,6 +3,9 @@ package com.tiendafriki.carrito.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+// Este DTO sirve para la creación y actualización del detalle de carrito
+// Controla lo que ingresa el usuario en la solicitud
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

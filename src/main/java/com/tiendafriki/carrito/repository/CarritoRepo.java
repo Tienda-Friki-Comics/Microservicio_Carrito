@@ -7,6 +7,6 @@ import java.util.*;
 
 @Repository
 public interface CarritoRepo extends JpaRepository <Carrito, Integer> {
-    List <Carrito> findByNombreIgnoreCase(String nombre); 
+    Optional <Carrito> findByRutUsuarioIgnoreCase(String rutUsuario);
     Optional <Carrito> findByID(Integer id);
 }

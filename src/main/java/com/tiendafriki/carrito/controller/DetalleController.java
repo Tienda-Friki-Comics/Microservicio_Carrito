@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import java.util.*;
 
 @RestController
-@RequestMapping("/detalle")
+@RequestMapping("/detalleCarrito")
 public class DetalleController {
 
     @Autowired

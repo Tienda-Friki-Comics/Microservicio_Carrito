@@ -14,8 +14,8 @@ public class ErrorDTO {
     private Map <String, String> Errores;
     private String Path;
 
-    public ErrorDTO(LocalDateTime TimeStamp, Integer Status, 
-    String Mensaje, Map <String, String> Errores, String Path) {    
+    public ErrorDTO(LocalDateTime TimeStamp, Integer Status,
+    String Mensaje, Map <String, String> Errores, String Path) {
         this.TimeStamp = TimeStamp;
         this.Status = Status;
         this.Mensaje = Mensaje;

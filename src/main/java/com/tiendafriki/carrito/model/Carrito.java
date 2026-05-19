@@ -18,9 +18,14 @@ public class Carrito {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ID;
 
-    @NotBlank(message = "[+] El Nombre No Puede Estar Vacio [>_<] ... ")
-    @Column(nullable = false, length = 100)
-    private String Nombre;
+    // Usuario propietario del carrito
+    // Se utiliza rut por ser un identificador único
+
+    @NotBlank(message = "[+] El Rut No Puede Estar Vacio [>_<] ... ")
+    @Column(nullable = false, length = 14, unique = true)
+    private String RutUsuario;
+
+    // Fecha de creación o última actualización
 
     @Column(nullable = false)
     private LocalDateTime Fecha;
