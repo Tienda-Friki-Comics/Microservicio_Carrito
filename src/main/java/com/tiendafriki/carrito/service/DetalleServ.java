@@ -25,7 +25,7 @@ public class DetalleServ {
 
     // === OBTENER PRECIO DESDE CATÁLOGO === //
 
-    private Integer ObtenerPrecio(Integer productoID) {
+    private Integer ObtenerPrecio(Integer productoId) {
 
         // Creamos un nuevo Rest Template para permitir la comunicacion con catalogo
 
@@ -33,7 +33,7 @@ public class DetalleServ {
 
         String url =
                 "http://localhost:8081/catalogo/buscarxid/"
-                + productoID;
+                        + productoId;
 
         try {
 
@@ -83,16 +83,16 @@ public class DetalleServ {
 
     // === BUSCAR POR CARRITO === //
 
-    public List<Detalle> buscarxCarrito(Integer carritoID) {
+    public List<Detalle> buscarxCarrito(Integer carritoId) {
 
-        return dr.findByCarrito_ID(carritoID);
+        return dr.findByCarrito_Id(carritoId);
     }
 
     // === BUSCAR POR PRODUCTO === //
 
-    public List<Detalle> buscarxProducto(Integer productoID) {
+    public List<Detalle> buscarxProducto(Integer productoId) {
 
-        return dr.findByProductoID(productoID);
+        return dr.findByProductoId(productoId);
     }
 
     // === CREAR DETALLE === //
@@ -102,24 +102,26 @@ public class DetalleServ {
         // Validamos carrito existente
 
         Optional<Carrito> ct =
-                cr.findByID(dto.getCarritoID());
+                cr.findById(dto.getCarritoId());
 
         if (ct.isEmpty()) {
 
-            return "[+] El Carrito Con El ID : "
-                    + dto.getCarritoID()
-                    + " No Existe [>_<] ... ";
+            throw new NoSuchElementException(
+                    "[+] El Carrito Con El ID : "
+                            + dto.getCarritoId()
+                            + " No Existe [>_<] ... "
+            );
         }
 
         // Obtener precio desde catálogo
 
-        Integer PrecioxUnidad =
-                ObtenerPrecio(dto.getProductoID());
+        Integer precioxUnidad =
+                ObtenerPrecio(dto.getProductoId());
 
         // Calcular subtotal
 
-        Integer Subtotal =
-                dto.getCantidad() * PrecioxUnidad;
+        Integer subtotal =
+                dto.getCantidad() * precioxUnidad;
 
         // Crear detalle
 
@@ -127,13 +129,13 @@ public class DetalleServ {
 
         dt.setCarrito(ct.get());
 
-        dt.setProductoID(dto.getProductoID());
+        dt.setProductoId(dto.getProductoId());
 
         dt.setCantidad(dto.getCantidad());
 
-        dt.setPrecioxUnidad(PrecioxUnidad);
+        dt.setPrecioxUnidad(precioxUnidad);
 
-        dt.setSubtotal(Subtotal);
+        dt.setSubtotal(subtotal);
 
         dr.save(dt);
 
@@ -150,46 +152,53 @@ public class DetalleServ {
                 + dto.getCantidad()
                 + " | "
                 + "[+] PrecioxUnidad : $"
-                + PrecioxUnidad
+                + precioxUnidad
                 + " | "
                 + "[+] Subtotal : $"
-                + Subtotal
+                + subtotal
                 + " [>_<] ... ";
     }
 
     // === ACTUALIZAR DETALLE === //
 
-    public String Actualizar(Integer id, DetalleDTO dto) {
+    public String Actualizar(
+            Integer id,
+            DetalleDTO dto
+    ) {
 
         Optional<Detalle> dt =
                 dr.findById(id);
 
         if (dt.isEmpty()) {
 
-            return "[+] Detalle Con El ID : "
-                    + id
-                    + " No Encontrado [>_<] ... ";
+            throw new NoSuchElementException(
+                    "[+] Detalle Con El ID : "
+                            + id
+                            + " No Encontrado [>_<] ... "
+            );
         }
 
         // Validar carrito
 
         Optional<Carrito> ct =
-                cr.findByID(dto.getCarritoID());
+                cr.findById(dto.getCarritoId());
 
         if (ct.isEmpty()) {
 
-            return "[+] El Carrito No Existe [>_<] ... ";
+            throw new NoSuchElementException(
+                    "[+] El Carrito No Existe [>_<] ... "
+            );
         }
 
         // Obtener precio actualizado
 
-        Integer PrecioxUnidad =
-                ObtenerPrecio(dto.getProductoID());
+        Integer precioxUnidad =
+                ObtenerPrecio(dto.getProductoId());
 
         // Recalcular subtotal
 
-        Integer Subtotal =
-                dto.getCantidad() * PrecioxUnidad;
+        Integer subtotal =
+                dto.getCantidad() * precioxUnidad;
 
         // Actualizar detalle
 
@@ -197,13 +206,13 @@ public class DetalleServ {
 
         detalle.setCarrito(ct.get());
 
-        detalle.setProductoID(dto.getProductoID());
+        detalle.setProductoId(dto.getProductoId());
 
         detalle.setCantidad(dto.getCantidad());
 
-        detalle.setPrecioxUnidad(PrecioxUnidad);
+        detalle.setPrecioxUnidad(precioxUnidad);
 
-        detalle.setSubtotal(Subtotal);
+        detalle.setSubtotal(subtotal);
 
         dr.save(detalle);
 
@@ -220,10 +229,10 @@ public class DetalleServ {
                 + dto.getCantidad()
                 + " | "
                 + "[+] PrecioxUnidad : $"
-                + PrecioxUnidad
+                + precioxUnidad
                 + " | "
                 + "[+] Subtotal : $"
-                + Subtotal
+                + subtotal
                 + " [>_<] ... ";
     }
 
@@ -234,121 +243,18 @@ public class DetalleServ {
         Optional<Detalle> dt =
                 dr.findById(id);
 
-        if (dt.isPresent()) {
+        if (dt.isEmpty()) {
 
-            dr.deleteById(id);
-
-            return "[+] El Detalle A Sido Eliminado Con Exito [>_<] ... ";
+            throw new NoSuchElementException(
+                    "[+] Detalle Con El ID : "
+                            + id
+                            + " No A Sido Encontrado [>_<] ... "
+            );
         }
 
-        return "[+] Detalle Con El ID : "
-                + id
-                + " No A Sido Encontrado [>_<] ... ";
-    }
-}
+        dr.deleteById(id);
 
-
-/*
-
-package com.tiendafriki.carrito.service;
-
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.stereotype.Service;
-import com.tiendafriki.carrito.repository.*;
-import com.tiendafriki.carrito.model.*;
-import com.tiendafriki.carrito.dto.*;
-import java.util.*;
-
-@Service
-public class DetalleServ {
-
-    @Autowired
-    private RestTemplate rt;
-    private DetalleRepo dr;
-    private CarritoRepo cr;
-
-    private Integer ObtenerPrecio(Integer productoID) {
-        
-        String url = "http://localhost:8081/catalogo/buscarxid/{id}";
-        Map response = rt.getForObject(url, Map.class);
-
-        if (response == null || response.containsKey("Precio")) {
-           throw new RuntimeException("[+] El Producto No Existe En El Catalogo [>_<] ... ");
-        }
-        return (Integer) response.get("Precio");
-    }
-
-    public List <Detalle> listar() {
-        return dr.findAll();
-    }
-
-    public Optional <Detalle> buscarxID(Integer id) {
-        return dr.findById(id);
-    }
-
-    public List <Detalle> buscarxCarrito(Integer carritoID) {
-        return dr.findByCarritoID(carritoID);
-    }
-
-    public List <Detalle> buscarxProducto(Integer productoID) {
-        return dr.findByProductoID(productoID);
-    }
-
-    public String Guardar(DetalleDTO dto) {
-        Optional <Carrito> ct = cr.findByID(dto.getCarritoID());
-        if (ct.isEmpty()) {
-            return "[+] El Carrito Con El ID : " + dto.getCarritoID() + " No Existe [>_<] ... ";
-        }
-
-        Integer PrecioxUnidad = ObtenerPrecio(dto.getProductoID());
-        Integer Subtotal      = dto.getCantidad() * PrecioxUnidad;
-
-        Detalle dt = new Detalle();
-        dt.setCarrito(ct.get());
-        dt.setProductoID(dto.getProductoID());
-        dt.setCantidad(dto.getCantidad());
-        dt.setSubtotal(Subtotal);
-        dr.save(dt);
-
-        return "[+] Detalle Agregado Exitosamente [>_<] ... " + 
-               "[+] Cantidad : " + dto.getCantidad() + " | " +
-               "[+] PrecioxUnidad : " + PrecioxUnidad + " | " +
-               "[+] Subtotal : $" + Subtotal + " [>_<] ... ";
-    }
-
-    public String Actualizar(Integer id, DetalleDTO dto) {
-       Optional <Detalle> dt = dr.findById(id);
-       if (dt.isEmpty()) {
-            return "[+] Detalle Con El ID : " + id + " No Encontrado [>_<] ... ";
-       }
-       Integer PrecioxUnidad = ObtenerPrecio(dto.getProductoID());
-       Integer Subtotal = dto.getCantidad() * PrecioxUnidad;
-       
-       Detalle detalle = dt.get();
-       detalle.setProductoID(dto.getProductoID());
-       detalle.setCantidad(dto.getCantidad());
-       detalle.setPrecioxUnidad(PrecioxUnidad);
-       detalle.setSubtotal(Subtotal);
-       dr.save(detalle);
-
-        return "[+] Detalle Actualizado Correctamente. " +
-               "[+] Cantidad : " + dto.getCantidad() + " | " +
-               "[+] PrecioxUnidad : $" + PrecioxUnidad + " | " +
-               "[+] Subtotal : $" + Subtotal + " [>_<] ... ";
-    }
-
-    public String Eliminar(Integer id) {
-        Optional <Detalle> dt = dr.findById(id);
-        if (dt.isPresent()) {
-            dr.deleteById(id);
-            return "[+] El Detalle a Sido Eliminado Con Exito [>_<] ... ";
-        }
-        return "[+] Detalle Con El ID : " + id + " No a Sido Encontrado [>_<] ... ";
+        return "[+] El Detalle A Sido Eliminado Con Exito [>_<] ... ";
     }
 
 }
-
-
-
-*/

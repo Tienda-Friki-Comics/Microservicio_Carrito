@@ -3,6 +3,9 @@ package com.tiendafriki.carrito.model;
 import jakarta.validation.constraints.*;
 import jakarta.persistence.*;
 import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.time.*;
 import lombok.*;
 
@@ -16,21 +19,22 @@ public class Carrito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer ID;
+    private Integer id;
 
     // Usuario propietario del carrito
     // Se utiliza rut por ser un identificador único
 
     @NotBlank(message = "[+] El Rut No Puede Estar Vacio [>_<] ... ")
     @Column(nullable = false, length = 14, unique = true)
-    private String RutUsuario;
+    private String rutUsuario;
 
     // Fecha de creación o última actualización
 
     @Column(nullable = false)
-    private LocalDateTime Fecha;
+    private LocalDateTime fecha;
 
-    @OneToMany(mappedBy = "Carrito", cascade = CascadeType.ALL)
-    private List <Detalle> Detalles;
+    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL)
+    @JsonManagedReference // "Esta es la relacion padre", sirve para evitar ciclos repetitivos al consultar detalles
+    private List <Detalle> detalles;
 
 }

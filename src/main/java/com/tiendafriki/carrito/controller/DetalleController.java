@@ -11,44 +11,78 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/detalleCarrito")
+
 public class DetalleController {
 
     @Autowired
     private DetalleServ s;
 
     @GetMapping("/listar")
-    public List <Detalle> listar() {
+    public List<Detalle> listar() {
+
         return s.listar();
     }
 
+    // IMPORTANTE:
+    // Si el detalle no existe,
+    // lanzamos excepción 404 automáticamente
+
     @GetMapping("/buscarxid/{id}")
-    public Optional <Detalle> buscarxId(@PathVariable Integer id) {
-        return s.buscarxID(id);
+    public Detalle buscarxId(@PathVariable Integer id) {
+
+        return s.buscarxID(id)
+                .orElseThrow(() ->
+                        new NoSuchElementException(
+                                "[+] Detalle No Encontrado [>_<] ... "
+                        )
+                );
     }
 
     @GetMapping("/carrito/{carritoId}")
-    public List <Detalle> buscarxCarrito(@PathVariable Integer carritoId) {
+    public List<Detalle> buscarxCarrito(
+            @PathVariable Integer carritoId
+    ) {
+
         return s.buscarxCarrito(carritoId);
     }
 
     @GetMapping("/producto/{productoId}")
-    public List <Detalle> buscarxProducto(@PathVariable Integer productoId) {
+    public List<Detalle> buscarxProducto(
+            @PathVariable Integer productoId
+    ) {
+
         return s.buscarxProducto(productoId);
     }
 
     @PostMapping("/agregar")
-    public ResponseEntity <?> Agregar(@Valid @RequestBody DetalleDTO dto) {
-        return ResponseEntity.status(201).body(s.Guardar(dto));
+    public ResponseEntity<?> Agregar(
+            @Valid @RequestBody DetalleDTO dto
+    ) {
+
+        return ResponseEntity
+                .status(201)
+                .body(s.Guardar(dto));
     }
 
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity <?> Actualizar(@PathVariable Integer id, @Valid @RequestBody DetalleDTO dto) {
-        return ResponseEntity.ok(s.Actualizar(id, dto));
+    public ResponseEntity<?> Actualizar(
+            @PathVariable Integer id,
+            @Valid @RequestBody DetalleDTO dto
+    ) {
+
+        return ResponseEntity.ok(
+                s.Actualizar(id, dto)
+        );
     }
 
     @DeleteMapping("/eliminarxid/{id}")
-    public ResponseEntity <?> Eliminar(@PathVariable Integer id) {
-        return ResponseEntity.ok(s.Eliminar(id));
+    public ResponseEntity<?> Eliminar(
+            @PathVariable Integer id
+    ) {
+
+        return ResponseEntity.ok(
+                s.Eliminar(id)
+        );
     }
 
 }

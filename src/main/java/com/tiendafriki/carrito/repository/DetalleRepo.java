@@ -9,6 +9,6 @@ import java.util.List;
 public interface DetalleRepo extends JpaRepository <Detalle, Integer> {
     
     // Corregi el nombre al que se refiere al id de carrito
-    List <Detalle> findByCarrito_ID(Integer carritoId);
-    List <Detalle> findByProductoID(Integer productoId);
+    List <Detalle> findByCarrito_Id(Integer carritoId);
+    List <Detalle> findByProductoId(Integer productoId);
 }

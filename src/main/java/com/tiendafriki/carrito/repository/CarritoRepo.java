@@ -8,5 +8,4 @@ import java.util.*;
 @Repository
 public interface CarritoRepo extends JpaRepository <Carrito, Integer> {
     Optional <Carrito> findByRutUsuarioIgnoreCase(String rutUsuario);
-    Optional <Carrito> findByID(Integer id);
 }

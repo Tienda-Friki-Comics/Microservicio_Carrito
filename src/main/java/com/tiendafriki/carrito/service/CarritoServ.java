@@ -29,7 +29,7 @@ public class CarritoServ {
 
     public Optional<Carrito> buscarxID(Integer id) {
 
-        return cr.findByID(id);
+        return cr.findById(id);
     }
 
     // === BUSCAR POR RUT === //
@@ -41,15 +41,25 @@ public class CarritoServ {
 
     // === CALCULAR TOTAL DEL CARRITO === //
 
-    public Double calcularTotal(Integer carritoID) {
+    public Double calcularTotal(Integer carritoId) {
+
+        // VALIDAMOS QUE EL CARRITO EXISTA
+        // antes de calcular su total
+
+        if (!cr.existsById(carritoId)) {
+
+            throw new NoSuchElementException(
+                    "[+] Carrito No Encontrado [>_<] ... "
+            );
+        }
 
         List<Detalle> detalles =
-                dr.findByCarrito_ID(carritoID);
+                dr.findByCarrito_Id(carritoId);
 
         double subtotal =
                 detalles.stream()
-                .mapToDouble(Detalle::getSubtotal)
-                .sum();
+                        .mapToDouble(Detalle::getSubtotal)
+                        .sum();
 
         // IVA 19%
 
@@ -65,7 +75,7 @@ public class CarritoServ {
         // Validamos que NO exista otro carrito
         // para el mismo usuario
 
-        Optional<Carrito> Existente =
+        Optional<Carrito> existente =
                 cr.findByRutUsuarioIgnoreCase(
                         dto.getRutUsuario()
                 );
@@ -73,11 +83,13 @@ public class CarritoServ {
         // ERROR CORREGIDO:
         // antes estaba invertido
 
-        if (Existente.isPresent()) {
+        if (existente.isPresent()) {
 
-            return "[+] Ya Existe Un Carrito Para El Usuario "
-                    + dto.getRutUsuario()
-                    + " [>_<] ... ";
+            throw new IllegalArgumentException(
+                    "[+] Ya Existe Un Carrito Para El Usuario "
+                            + dto.getRutUsuario()
+                            + " [>_<] ... "
+            );
         }
 
         /*
@@ -104,115 +116,28 @@ public class CarritoServ {
                 + " [>_<] ... ";
     }
 
-    // === ACTUALIZAR === //
-
-    public String Actualizar(Integer id, CarritoDTO dto) {
-
-        Optional<Carrito> ct = cr.findByID(id);
-
-        if (ct.isPresent()) {
-
-            Carrito c = ct.get();
-
-            c.setRutUsuario(dto.getRutUsuario());
-
-            // Actualizamos fecha automáticamente
-
-            c.setFecha(LocalDateTime.now());
-
-            cr.save(c);
-
-            return "[+] Carrito Actualizado Correctamente [>_<] ... ";
-        }
-
-        return "[+] Carrito Con El ID : "
-                + id
-                + " No Encontrado [>_<] ... ";
-    }
-
     // === ELIMINAR === //
 
     public String Eliminar(Integer id) {
 
-        Optional<Carrito> ct = cr.findByID(id);
+        Optional<Carrito> ct =
+                cr.findById(id);
 
-        if (ct.isPresent()) {
+        // IMPORTANTE:
+        // lanzamos excepción si no existe
 
-            cr.deleteById(id);
+        if (ct.isEmpty()) {
 
-            return "[+] Carrito Eliminado Correctamente [>_<] ... ";
+            throw new NoSuchElementException(
+                    "[+] Carrito Con El ID : "
+                            + id
+                            + " No Ha Sido Encontrado [>_<] ... "
+            );
         }
 
-        return "[+] Carrito Con El ID : "
-                + id
-                + " No Ha Sido Encontrado [>_<] ... ";
+        cr.deleteById(id);
+
+        return "[+] Carrito Eliminado Correctamente [>_<] ... ";
     }
 
 }
-
-/*
-
-package com.tiendafriki.carrito.service;
-
-import org.springframework.beans.factory.annotation.*;
-import com.tiendafriki.carrito.repository.CarritoRepo;
-import org.springframework.stereotype.Service;
-import com.tiendafriki.carrito.dto.CarritoDTO;
-import com.tiendafriki.carrito.model.Carrito;
-import java.time.*;
-import java.util.*;
-
-@Service
-public class CarritoServ {
-
-    @Autowired
-    private CarritoRepo cr;
-
-    public List <Carrito> listar() {
-        return cr.findAll();
-    }
-
-    public Optional <Carrito> buscarxID(Integer id) {
-        return cr.findByID(id);
-    }
-
-    public List <Carrito> buscarxNombre(String nombre) {
-        return cr.findByNombreIgnoreCase(nombre);
-    }
-
-    public String Guardar(CarritoDTO dto) {
-        List <Carrito> Existente = cr.findByNombreIgnoreCase(dto.getNombre());
-        if (Existente.isEmpty()) {
-            return "[+] Ya Existe Un Carrito Para El Cliente " + dto.getNombre() + " [>_<] ... ";
-        }
-        Carrito c = new Carrito();
-        c.setNombre(dto.getNombre());
-        c.setFecha(LocalDateTime.now());
-        cr.save(c);
-        return "[+] Carrito Creado Correctamente Para " + dto.getNombre() + " [>_<] ... ";
-    }
-
-    public String Actualizar(Integer id, CarritoDTO dto) {
-        Optional <Carrito> ct = cr.findByID(id);
-        if (ct.isPresent()) {
-            Carrito c = ct.get();
-            c.setNombre(dto.getNombre());
-            cr.save(c);
-            return "[+] Carrito Actualizado Correctamente [>_<] ... ";
-        }
-        return "[+] Carrito Con El ID : " + id + " No Encontrado [>_<] ... ";
-    }
-
-    public String Eliminar(Integer id) {
-        Optional <Carrito> ct = cr.findByID(id);
-        if (ct.isPresent()) {
-            cr.deleteById(id);
-            return "[+] Carrito Eliminado Correctamente [>_<] ... ";
-        }
-        return "[+] Carrito Con El ID : " + id + " No a Sido Encontrado [>_<] ... ";
-    }
-
-}
-
-
-*/

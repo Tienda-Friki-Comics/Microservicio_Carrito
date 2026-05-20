@@ -15,6 +15,11 @@ public class CarritoDTO {
     // ya que el rut es un dato unico e irrepetible
     
     @NotBlank(message = "[+] El Rut Del Usuario No Puede Quedar Vacio [>_<] ... ")
-    private String RutUsuario;
+    // Esto validará que rut tenga el formato correcto:
+    @Pattern(
+    regexp = "^\\d{1,2}\\.\\d{3}\\.\\d{3}-[\\dkK]$|^\\d{7,8}-[\\dkK]$",
+    message = "[+] El Formato Del Rut Es Invalido [>_<] ... "
+    )
+    private String rutUsuario;
 
 }
