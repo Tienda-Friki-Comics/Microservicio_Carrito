@@ -172,7 +172,7 @@ public class DetalleServ {
         if (dt.isEmpty()) {
 
             throw new NoSuchElementException(
-                    "[+] Detalle Con El ID : "
+                    "[] Detalle Con El ID : "
                             + id
                             + " No Encontrado [>_<] ... "
             );
@@ -186,7 +186,7 @@ public class DetalleServ {
         if (ct.isEmpty()) {
 
             throw new NoSuchElementException(
-                    "[+] El Carrito No Existe [>_<] ... "
+                    "[ERROR] El Carrito No Existe [>_<] ... "
             );
         }
 
@@ -240,13 +240,12 @@ public class DetalleServ {
 
     public String Eliminar(Integer id) {
 
-        Optional<Detalle> dt =
-                dr.findById(id);
+        Optional<Detalle> dt = dr.findById(id);
 
         if (dt.isEmpty()) {
 
             throw new NoSuchElementException(
-                    "[+] Detalle Con El ID : "
+                    "[ERROR] Detalle Con El ID : "
                             + id
                             + " No A Sido Encontrado [>_<] ... "
             );
@@ -256,5 +255,7 @@ public class DetalleServ {
 
         return "[+] El Detalle A Sido Eliminado Con Exito [>_<] ... ";
     }
+
+    
 
 }

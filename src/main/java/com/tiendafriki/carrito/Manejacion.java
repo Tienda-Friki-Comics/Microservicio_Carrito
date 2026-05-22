@@ -1,14 +1,12 @@
 package com.tiendafriki.carrito;
 
+import com.tiendafriki.carrito.dto.ErrorDTO;
+
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-
 import jakarta.servlet.http.HttpServletRequest;
-
-import com.tiendafriki.carrito.dto.ErrorDTO;
-
 import java.time.*;
 import java.util.*;
 
@@ -22,70 +20,54 @@ public class Manejacion {
 
     public ResponseEntity<ErrorDTO> ErrorValidacion(
             MethodArgumentNotValidException ex,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
 
-        Map<String, String> Errores =
-                new HashMap<>();
+        Map<String, String> Errores = new HashMap<>();
 
-        ex.getBindingResult()
-                .getFieldErrors()
-                .forEach(error ->
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+        Errores.put(error.getField(),error.getDefaultMessage()
+        ));
 
-                        Errores.put(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        )
-                );
+        ErrorDTO errorDTO = new ErrorDTO(
 
-        ErrorDTO error =
-                new ErrorDTO(
+                LocalDateTime.now(),
+                400,
+                "[ERROR] : 400 Error En La Validacion [>_<] ... ",
+                Errores,
+                request.getRequestURI());
 
-                        LocalDateTime.now(),
-
-                        400,
-
-                        "[+] Error : 400 Error En La Validacion [>_<] ... ",
-
-                        Errores,
-
-                        request.getRequestURI()
-                );
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
     }
 
-    // === ERROR SOLICITUD INCORRECTA === //
+    // === ERRORES DE VALIDACIONES DE NEGOCIO === //
+
+    // Nota: Este metodo NO es para validaciones jakarta, sino para validaciones
+    // de logica de negocio interna devuelto por el service, como cuando un objeto ya existe.
+    // Este metodo nos servirá para centralizar los mensjaes de errores de negocio
+    // con su correspondiente HTTTP Status
 
     @ExceptionHandler(IllegalArgumentException.class)
 
     public ResponseEntity<ErrorDTO> ErrorSolicitud(
             IllegalArgumentException ex,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
 
-        ErrorDTO error =
-                new ErrorDTO(
+        ErrorDTO error = new ErrorDTO(
 
-                        LocalDateTime.now(),
+                LocalDateTime.now(),
 
-                        400,
+                400,
 
-                        // MOSTRAMOS EL MENSAJE REAL
-                        // enviado desde el service
+                // MOSTRAMOS EL MENSAJE REAL
+                // enviado desde el service
 
-                        ex.getMessage(),
+                ex.getMessage(),
 
-                        null,
+                null,
 
-                        request.getRequestURI()
-                );
+                request.getRequestURI());
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+        return ResponseEntity.badRequest().body(error);
     }
 
     // === ERROR NO ENCONTRADO === //
@@ -104,7 +86,7 @@ public class Manejacion {
 
                         404,
 
-                        "[+] Error : 404 Recurso No Encontrado [>_<] ... ",
+                        "[ERROR] : 404 Recurso No Encontrado [>_<] ... ",
 
                         null,
 
@@ -116,124 +98,56 @@ public class Manejacion {
                 .body(error);
     }
 
-    /*
+        // === ERROR 500: ERROR INTERNO DEL SERVIDOR === //
 
-    // === ERROR GENERAL === //
+        // Esta excepción se utiliza para errores inesperados
+        // ocurridos durante la ejecución del sistema.
+        //
+        // Generalmente ocurre cuando existe un problema
+        // al comunicarse con otros microservicios.
+        //
+        // Ejemplos:
+        //
+        // - El microservicio carrito está apagado
+        // - Falló la conexión HTTP
+        // - Timeout de comunicación
+        // - URL inexistente
+        // - Error inesperado del servidor
+        //
+        // Normalmente estas excepciones ocurren dentro
+        // de bloques try-catch del service.
+        //
+        // Cuando ocurre uno de estos errores,
+        // se lanza un RuntimeException y este manejador
+        // lo transforma automáticamente en un
+        // HTTP 500 (Internal Server Error).
 
-    @ExceptionHandler(Exception.class)
+        @ExceptionHandler(RuntimeException.class)
 
-    public ResponseEntity<ErrorDTO> ErrorGeneral(
-            Exception ex,
-            HttpServletRequest request
-    ) {
+        public ResponseEntity<ErrorDTO> manejarErrorInterno(
+                RuntimeException ex,
+                HttpServletRequest request) {
 
-        ErrorDTO error =
-                new ErrorDTO(
+        Map<String, String> errores = new HashMap<>();
 
-                        LocalDateTime.now(),
+        errores.put("error", ex.getMessage());
 
-                        500,
+        ErrorDTO errorDTO = new ErrorDTO(
 
-                        "[+] Error : 500 Error Interno Del Servidor [>_<] ... ",
+                LocalDateTime.now(),
 
-                        null,
+                500,
 
-                        request.getRequestURI()
-                );
+                "[ERROR] Error Interno del Servidor [X_X]",
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(error);
-    }
+                errores,
 
-    */
+                request.getRequestURI());
 
-}
-
-/*
-
-package com.tiendafriki.carrito;
-
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import com.tiendafriki.carrito.dto.ErrorDTO;
-import java.time.*;
-import java.util.*;
-
-@RestControllerAdvice
-public class Manejacion {
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorDTO> ErrorValidacion(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        Map<String, String> Errores = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-            Errores.put(error.getField(), error.getDefaultMessage())
-        );
-        ErrorDTO error = new ErrorDTO(
-            LocalDateTime.now(),
-            400,
-            "[+] Error : " + 400 + " Error En La Validacion [>_<] ... ",
-            Errores,
-            request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> ErrorSolicitud(Exception ex, HttpServletRequest request) {
-        ErrorDTO error = new ErrorDTO(
-            LocalDateTime.now(),
-            400,
-            "[+] Error : " + 400 + " Error En La Solicitud [>_<] ... ",
-            null,
-            request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
+        return ResponseEntity.status(500).body(errorDTO);
+        }
 
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> ErrorNoAutorizado(Exception ex, HttpServletRequest request) {
-        ErrorDTO error = new ErrorDTO(
-            LocalDateTime.now(),
-            401,
-            "[+] Error : " + 401 + " Error No Autorizado [>_<] ... ",
-            null,
-            request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-    }
-
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> ErrorNoEncontrado(Exception ex, HttpServletRequest request) {
-        ErrorDTO error = new ErrorDTO(
-            LocalDateTime.now(),
-            404,
-            "[+] Error : " + 404 + " Error Recurso No Encontrado [>_<] ... ",
-            null,
-            request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> ErrorGeneral(Exception ex, HttpServletRequest request) {
-        ErrorDTO error = new ErrorDTO(
-            LocalDateTime.now(),
-            500,
-            "[+] Error : " + 500 + " Error Interno Del Servidor [>_<] ... ",
-            null,
-            request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
-
+    
 
 }
-
-
-*/

@@ -14,75 +14,74 @@ import java.util.*;
 
 public class DetalleController {
 
-    @Autowired
-    private DetalleServ s;
+        @Autowired
+        private DetalleServ s;
 
-    @GetMapping("/listar")
-    public List<Detalle> listar() {
+        @GetMapping("/listar")
+        public List<Detalle> listar() {
 
-        return s.listar();
-    }
+                return s.listar();
+        }
 
-    // IMPORTANTE:
-    // Si el detalle no existe,
-    // lanzamos excepción 404 automáticamente
+        // IMPORTANTE:
+        // Si el detalle no existe,
+        // lanzamos excepción 404 automáticamente
 
-    @GetMapping("/buscarxid/{id}")
-    public Detalle buscarxId(@PathVariable Integer id) {
+        @GetMapping("/buscarxid/{id}")
+        public Detalle buscarxId(@PathVariable Integer id) {
 
-        return s.buscarxID(id)
-                .orElseThrow(() ->
-                        new NoSuchElementException(
-                                "[+] Detalle No Encontrado [>_<] ... "
-                        )
+                return s.buscarxID(id)
+                        .orElseThrow(() ->
+                                new NoSuchElementException(
+                                        "[+] Detalle No Encontrado [>_<] ... "
+                                )
+                        );
+        }
+
+        @GetMapping("/carrito/{carritoId}")
+        public List<Detalle> buscarxCarrito(
+                @PathVariable Integer carritoId
+        ) {
+
+                return s.buscarxCarrito(carritoId);
+        }
+
+        @GetMapping("/producto/{productoId}")
+        public List<Detalle> buscarxProducto(
+                @PathVariable Integer productoId
+        ) {
+
+                return s.buscarxProducto(productoId);
+        }
+
+        @PostMapping("/agregar")
+        public ResponseEntity<?> Agregar(
+                @Valid @RequestBody DetalleDTO dto
+        ) {
+
+                return ResponseEntity
+                        .status(201)
+                        .body(s.Guardar(dto));
+        }
+
+        @PutMapping("/actualizar/{id}")
+        public ResponseEntity<?> Actualizar(
+                @PathVariable Integer id,
+                @Valid @RequestBody DetalleDTO dto
+        ) {
+
+                return ResponseEntity.ok(
+                        s.Actualizar(id, dto)
                 );
-    }
+        }
 
-    @GetMapping("/carrito/{carritoId}")
-    public List<Detalle> buscarxCarrito(
-            @PathVariable Integer carritoId
-    ) {
+        @DeleteMapping("/eliminarxid/{id}")
+        public ResponseEntity<?> Eliminar(@PathVariable Integer id) {
 
-        return s.buscarxCarrito(carritoId);
-    }
+                return ResponseEntity.ok(
+                        s.Eliminar(id)
+                );
+        }
 
-    @GetMapping("/producto/{productoId}")
-    public List<Detalle> buscarxProducto(
-            @PathVariable Integer productoId
-    ) {
-
-        return s.buscarxProducto(productoId);
-    }
-
-    @PostMapping("/agregar")
-    public ResponseEntity<?> Agregar(
-            @Valid @RequestBody DetalleDTO dto
-    ) {
-
-        return ResponseEntity
-                .status(201)
-                .body(s.Guardar(dto));
-    }
-
-    @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> Actualizar(
-            @PathVariable Integer id,
-            @Valid @RequestBody DetalleDTO dto
-    ) {
-
-        return ResponseEntity.ok(
-                s.Actualizar(id, dto)
-        );
-    }
-
-    @DeleteMapping("/eliminarxid/{id}")
-    public ResponseEntity<?> Eliminar(
-            @PathVariable Integer id
-    ) {
-
-        return ResponseEntity.ok(
-                s.Eliminar(id)
-        );
-    }
 
 }
