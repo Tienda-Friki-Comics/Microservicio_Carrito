@@ -11,14 +11,14 @@ import lombok.*;
 @AllArgsConstructor
 public class DetalleDTO {
 
-    @NotNull(message = "[+] El ID Del Carrito No Puede Ser Nulo [>_<] ... ")
+    @NotNull(message = "[ERROR] El ID Del Carrito No Puede Ser Nulo [>_<] ... ")
     private Integer carritoId;
 
-    @NotNull(message = "[+] La ID Del Producto No Puede Estar Nulo [>_<] ... ")
+    @NotNull(message = "[ERROR] La ID Del Producto No Puede Estar Nulo [>_<] ... ")
     private Integer productoId;
 
-    @Min(value = 1, message = "[+] La Cantidad Debe Ser Mayor o Igual a 1 [>_<] ... ")
-    @NotNull(message = "[+] La Cantidad No Puede Ser Nula [>_<] ...                 ")
+    @Min(value = 1, message = "[ERROR] La Cantidad Debe Ser Mayor o Igual a 1 [>_<] ... ")
+    @NotNull(message = "[ERROR] La Cantidad No Puede Ser Nula [>_<] ...                 ")
     private Integer cantidad;
 
 }

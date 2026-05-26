@@ -23,9 +23,7 @@ public class Carrito {
 
     // Usuario propietario del carrito
     // Se utiliza rut por ser un identificador único
-
-    @NotBlank(message = "[+] El Rut No Puede Estar Vacio [>_<] ... ")
-    @Column(nullable = false, length = 14, unique = true)
+    @Column(nullable = false, length = 12, unique = true)
     private String rutUsuario;
 
     // Fecha de creación o última actualización

@@ -147,7 +147,4 @@ public class Manejacion {
         return ResponseEntity.status(500).body(errorDTO);
         }
 
-
-    
-
 }

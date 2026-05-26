@@ -14,9 +14,6 @@ import java.util.*;
 @Service
 public class DetalleServ {
 
-    //@Autowired
-    //private RestTemplate rt;
-
     @Autowired
     private DetalleRepo dr;
 
@@ -51,7 +48,7 @@ public class DetalleServ {
                     || !response.containsKey("precio")) {
 
                 throw new RuntimeException(
-                        "[+] El Producto No Existe En El Catalogo [>_<] ... "
+                        "[ERROR] El Producto No Existe En El Catalogo [>_<] ... "
                 );
             }
 
@@ -62,7 +59,7 @@ public class DetalleServ {
         } catch (Exception e) {
 
             throw new RuntimeException(
-                    "[+] Error Al Consultar Catalogo [>_<] ... "
+                    "[ERROR] Fallo Al Consultar Catalogo [>_<] ... "
             );
         }
     }
@@ -107,7 +104,7 @@ public class DetalleServ {
         if (ct.isEmpty()) {
 
             throw new NoSuchElementException(
-                    "[+] El Carrito Con El ID : "
+                    "[ERROR] El Carrito Con El ID : "
                             + dto.getCarritoId()
                             + " No Existe [>_<] ... "
             );
@@ -172,7 +169,7 @@ public class DetalleServ {
         if (dt.isEmpty()) {
 
             throw new NoSuchElementException(
-                    "[] Detalle Con El ID : "
+                    "[ERROR] Detalle Con El ID : "
                             + id
                             + " No Encontrado [>_<] ... "
             );

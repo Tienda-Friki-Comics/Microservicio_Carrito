@@ -3,6 +3,9 @@ package com.tiendafriki.carrito.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.tiendafriki.carrito.repository.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
 import com.tiendafriki.carrito.dto.CarritoDTO;
 import com.tiendafriki.carrito.model.*;
 import java.time.*;
@@ -49,7 +52,7 @@ public class CarritoServ {
         if (!cr.existsById(carritoId)) {
 
             throw new NoSuchElementException(
-                    "[+] Carrito No Encontrado [>_<] ... "
+                    "[ERROR] Carrito No Encontrado [>_<] ... "
             );
         }
 
@@ -70,51 +73,90 @@ public class CarritoServ {
 
     // === CREAR CARRITO === //
 
-    public String Guardar(CarritoDTO dto) {
+public String Guardar(CarritoDTO dto) {
 
-        // Validamos que NO exista otro carrito
-        // para el mismo usuario
+    // ============================================
+    // VALIDAR CARRITO DUPLICADO
+    // ============================================
 
-        Optional<Carrito> existente =
-                cr.findByRutUsuarioIgnoreCase(
-                        dto.getRutUsuario()
-                );
+    Optional<Carrito> existente =
+            cr.findByRutUsuarioIgnoreCase(
+                    dto.getRutUsuario()
+            );
 
-        // ERROR CORREGIDO:
-        // antes estaba invertido
+    if (existente.isPresent()) {
 
-        if (existente.isPresent()) {
+        throw new IllegalArgumentException(
+                "[ERROR]  Ya Existe Un Carrito Para El Usuario "
+                        + dto.getRutUsuario()
+                        + " [>_<] ... "
+        );
+    }
 
-            throw new IllegalArgumentException(
-                    "[+] Ya Existe Un Carrito Para El Usuario "
-                            + dto.getRutUsuario()
-                            + " [>_<] ... "
+    // ============================================
+    // VALIDAR USUARIO EN AUTH
+    // ============================================
+
+    RestTemplate rt = new RestTemplate();
+
+    String url =
+            "http://localhost:8080/auth/buscarxrutusuario/"
+                    + dto.getRutUsuario();
+
+    try {
+
+        Map<String, Object> usuario =
+                rt.getForObject(url, Map.class);
+
+        if (usuario == null || usuario.isEmpty()) {
+
+            throw new NoSuchElementException(
+                    "[ERROR]  Usuario No Existe [>_<] ... "
             );
         }
 
-        /*
-        // FUTURA CONEXIÓN CON USUARIOS
-
-        RestTemplate rt = new RestTemplate();
-
-        String url =
-                "http://localhost:808X/usuarios/buscarxrut/"
-                + dto.getRutUsuario();
-
-        */
-
-        Carrito c = new Carrito();
-
-        c.setRutUsuario(dto.getRutUsuario());
-
-        c.setFecha(LocalDateTime.now());
-
-        cr.save(c);
-
-        return "[+] Carrito Creado Correctamente Para "
-                + dto.getRutUsuario()
-                + " [>_<] ... ";
     }
+
+    // ============================================
+    // Dejamos pasar la excepcion que envia automaticamente RestTemplate
+    // ============================================
+
+    catch (HttpClientErrorException.NotFound e) {
+
+        throw new NoSuchElementException(
+                "[ERROR]  Usuario No Existe [>_<] ... "
+        );
+    }
+
+    // ============================================
+    // OTROS ERRORES
+    // ============================================
+
+    catch (Exception e) {
+
+        e.printStackTrace();
+
+        throw new RuntimeException(
+                "[ERROR] Falla Al Conectarse Con Auth [>_<] ... "
+        );
+    }
+
+    // ============================================
+    // CREAR CARRITO
+    // ============================================
+
+    Carrito c = new Carrito();
+
+    c.setRutUsuario(dto.getRutUsuario());
+
+    c.setFecha(LocalDateTime.now());
+
+    cr.save(c);
+
+    return "[+] Carrito Creado Correctamente Para "
+            + dto.getRutUsuario()
+            + " [>_<] ... ";
+}
 
     // === ELIMINAR === //
 
@@ -129,7 +171,7 @@ public class CarritoServ {
         if (ct.isEmpty()) {
 
             throw new NoSuchElementException(
-                    "[+] Carrito Con El ID : "
+                    "[ERROR] Carrito Con El ID : "
                             + id
                             + " No Ha Sido Encontrado [>_<] ... "
             );
