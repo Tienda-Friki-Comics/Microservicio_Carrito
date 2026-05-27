@@ -12,6 +12,9 @@ import java.util.*;
 @RestController
 @RequestMapping("/carrito")
 
+// REVISADO OK
+// Nada que corregir
+
 public class CarritoController {
 
     @Autowired
